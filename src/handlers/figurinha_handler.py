@@ -1,49 +1,49 @@
-from enum import Enum
-from typing import Optional
-from fastapi import APIRouter
+from typing import List, Optional
+
+from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/figurinha")
+from domain.entities import Figurinha
+from service.figurinha_service import FigurinhaService
+
 
 class FigurinhaCreateRequest(BaseModel):
-    numero: str
-    tipo: Enum
-    posicao: str
+    numero: Optional[str] = None
+    tipo: Optional[str] = None
+    posicao: Optional[str] = None
 
 
-@router.post("/")
-async def create_figurinha(request: FigurinhaCreateRequest):
-    # mais coisa
-    return {"message": "Figurinha criada com sucesso!"}
+class FigurinhaUpdateRequest(BaseModel):
+    numero: Optional[str] = None
+    tipo: Optional[str] = None
+    posicao: Optional[str] = None
 
 
-@router.get("/")
-async def get_figurinha(posicao: Optional[str] = None, tipo: Optional[Enum] = None):
-    # mais coisa
-    if posicao and tipo:
-        return {"message": f"Figurinhas do tipo {tipo} e posição {posicao} retornadas!"}
-    elif posicao:
-        return {"message": f"Figurinhas da posição {posicao} retornadas!"}
-    elif tipo:
-        return {"message": f"Figurinhas do tipo {tipo} retornadas!"}
-    else:
-        return {"message": "Todas as figurinhas retornadas!"}
+def create_figurinha_router(service: FigurinhaService) -> APIRouter:
+    router = APIRouter(prefix="/figurinha", tags=["figurinha"])
 
+    @router.post("", status_code=201)
+    def criar(request: FigurinhaCreateRequest) -> Figurinha:
+        return service.create_figurinha(request.model_dump())
 
-@router.get("/{figurinha_id}")
-async def get_figurinha_by_id(figurinha_id: int):
-    # mais coisa
-    return {"message": f"Figurinha com ID {figurinha_id} retornada!"}
+    @router.get("")
+    def listar(
+        posicao: Optional[str] = None,
+        tipo: Optional[str] = None,
+    ) -> List[Figurinha]:
+        return service.get_todas_figurinhas(filtro_posicao=posicao, filtro_tipo=tipo)
 
+    @router.get("/{figurinha_id}")
+    def obter(figurinha_id: int) -> Figurinha:
+        return service.get_figurinha_por_id(figurinha_id)
 
-@router.put("/{figurinha_id}")
-async def update_figurinha(
-    figurinha_id: int, request: FigurinhaCreateRequest
-):  # mais coisa
-    return {"message": f"Figurinha com ID {figurinha_id} atualizada com sucesso!"}
+    @router.put("/{figurinha_id}")
+    def atualizar(figurinha_id: int, request: FigurinhaUpdateRequest) -> Figurinha:
+        return service.put_figurinha(figurinha_id, request.model_dump())
 
+    @router.delete("/{figurinha_id}", status_code=204)
+    def deletar(figurinha_id: int) -> Response:
+        service.delete_figurinha(figurinha_id)
+        return Response(status_code=204)
 
-@router.delete("/{figurinha_id}")
-async def delete_figurinha(figurinha_id: int):
-    # mais coisa
-    return {"message": f"Figurinha com ID {figurinha_id} deletada com sucesso!"}
+    return router

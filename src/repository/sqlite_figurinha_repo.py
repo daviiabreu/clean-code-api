@@ -7,8 +7,8 @@ from infra.database import connection
 from repository.figurinha_repo import FigurinhaRepository
 
 
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 def _to_figurinha(row: sqlite3.Row) -> Figurinha:
@@ -16,8 +16,9 @@ def _to_figurinha(row: sqlite3.Row) -> Figurinha:
 
 
 class SQLiteFigurinhaRepository(FigurinhaRepository):
-    def create(self, figurinha: Figurinha) -> Figurinha:
-        now = _now()
+    def save(self, figurinha: Figurinha) -> Figurinha:
+        created_at = figurinha.created_at or _now()
+        updated_at = figurinha.updated_at or created_at
         with connection() as conn:
             cursor = conn.execute(
                 "INSERT INTO figurinha (numero, tipo, posicao, created_at, updated_at) "
@@ -26,13 +27,13 @@ class SQLiteFigurinhaRepository(FigurinhaRepository):
                     figurinha.numero,
                     figurinha.tipo.value,
                     figurinha.posicao.value,
-                    now,
-                    now,
+                    created_at.isoformat(),
+                    updated_at.isoformat(),
                 ),
             )
             new_id = cursor.lastrowid
         return figurinha.model_copy(
-            update={"id": new_id, "created_at": now, "updated_at": now}
+            update={"id": new_id, "created_at": created_at, "updated_at": updated_at}
         )
 
     def find_by_id(self, id: int) -> Optional[Figurinha]:
@@ -62,8 +63,7 @@ class SQLiteFigurinhaRepository(FigurinhaRepository):
             rows = conn.execute(query, params).fetchall()
         return [_to_figurinha(row) for row in rows]
 
-    def update_by_id(self, id: int, figurinha: Figurinha) -> Optional[Figurinha]:
-        now = _now()
+    def update(self, figurinha: Figurinha) -> Optional[Figurinha]:
         with connection() as conn:
             cursor = conn.execute(
                 "UPDATE figurinha "
@@ -73,13 +73,13 @@ class SQLiteFigurinhaRepository(FigurinhaRepository):
                     figurinha.numero,
                     figurinha.tipo.value,
                     figurinha.posicao.value,
-                    now,
-                    id,
+                    _now().isoformat(),
+                    figurinha.id,
                 ),
             )
             if cursor.rowcount == 0:
                 return None
-        return self.find_by_id(id)
+        return self.find_by_id(figurinha.id)
 
     def delete(self, id: int) -> bool:
         with connection() as conn:

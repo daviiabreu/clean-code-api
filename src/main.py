@@ -1,13 +1,37 @@
-import uvicorn
-from handlers.figurinha_handler import router
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
-app = FastAPI()
-app.include_router(router)
+from handlers.figurinha_handler import create_figurinha_router
+from infra.database import init_db
+from repository.sqlite_figurinha_repo import SQLiteFigurinhaRepository
+from service.figurinha_service import (
+    FigurinhaService,
+    NotFoundError,
+    ValidationError,
+)
 
-@app.get("/")
-async def main():
-    return {"teste"}
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+def create_app() -> FastAPI:
+    init_db()
+
+    service = FigurinhaService(SQLiteFigurinhaRepository())
+
+    app = FastAPI(title="API de Figurinhas")
+    app.include_router(create_figurinha_router(service))
+
+    @app.exception_handler(ValidationError)
+    async def handle_validation_error(
+        request: Request, exc: ValidationError
+    ) -> JSONResponse:
+        return JSONResponse(status_code=400, content={"error": str(exc)})
+
+    @app.exception_handler(NotFoundError)
+    async def handle_not_found_error(
+        request: Request, exc: NotFoundError
+    ) -> JSONResponse:
+        return JSONResponse(status_code=404, content={"error": str(exc)})
+
+    return app
+
+
+app = create_app()

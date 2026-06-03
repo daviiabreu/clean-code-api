@@ -20,9 +20,9 @@ class Posicao(str, Enum):
 
 
 class Figurinha(BaseModel):
-    id: int
-    numero: int
-    tipo: Enum
-    posicao: str
-    updated_at: Optional[datetime]
-    created_at: datetime
+    id: Optional[int] = None
+    numero: str
+    tipo: TipoFigurinha
+    posicao: Posicao
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
