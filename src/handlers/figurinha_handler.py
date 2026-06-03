@@ -1,10 +1,9 @@
-import Enum as Enum
-import Optional as Optional
+from enum import Enum
+from typing import Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/figurinha")
-
 
 class FigurinhaCreateRequest(BaseModel):
     numero: str
