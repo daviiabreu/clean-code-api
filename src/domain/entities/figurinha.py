@@ -1,18 +1,12 @@
+from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
+from enum import Enum
 
-class Product:
+class Figurinha(BaseModel):
     id: int
-    name: str
-    price: float
-    quantity: int
-
-
-class CreateProductRequest:
-    name: str
-    price: float
-    quantity: int
-
-
-class UpdateProductRequest:
-    price: Optional[float] = None
-    quantity: Optional[int] = None
+    numero: int
+    tipo: Enum
+    posicao: str
+    updated_at: datetime
+    created_at: datetime
