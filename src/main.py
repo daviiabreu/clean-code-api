@@ -13,7 +13,7 @@ def create_app():
     repository = SQLiteFigurinhaRepository()
     service = FigurinhaService(repository)
 
-    app = FastAPI(title="API de Figurinhas - Copa do Mundo 2026")
+    app = FastAPI(title="API de Figurinhas")
     app.include_router(create_figurinha_router(service))
 
     @app.exception_handler(ValidationError)
