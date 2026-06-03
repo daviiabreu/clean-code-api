@@ -7,23 +7,17 @@ from domain.entities import Figurinha
 from service.figurinha_service import FigurinhaService
 
 
-class FigurinhaCreateRequest(BaseModel):
-    numero: Optional[str] = None
-    tipo: Optional[str] = None
-    posicao: Optional[str] = None
-
-
-class FigurinhaUpdateRequest(BaseModel):
+class FigurinhaRequest(BaseModel):
     numero: Optional[str] = None
     tipo: Optional[str] = None
     posicao: Optional[str] = None
 
 
 def create_figurinha_router(service: FigurinhaService) -> APIRouter:
-    router = APIRouter(prefix="/figurinha", tags=["figurinha"])
+    router = APIRouter(prefix="/figurinha")
 
     @router.post("", status_code=201)
-    def criar(request: FigurinhaCreateRequest) -> Figurinha:
+    def criar(request: FigurinhaRequest) -> Figurinha:
         return service.create_figurinha(request.model_dump())
 
     @router.get("")
@@ -38,7 +32,7 @@ def create_figurinha_router(service: FigurinhaService) -> APIRouter:
         return service.get_figurinha_por_id(figurinha_id)
 
     @router.put("/{figurinha_id}")
-    def atualizar(figurinha_id: int, request: FigurinhaUpdateRequest) -> Figurinha:
+    def atualizar(figurinha_id: int, request: FigurinhaRequest) -> Figurinha:
         return service.put_figurinha(figurinha_id, request.model_dump())
 
     @router.delete("/{figurinha_id}", status_code=204)

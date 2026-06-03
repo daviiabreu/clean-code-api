@@ -1,11 +1,7 @@
-import os
 import sqlite3
 from contextlib import contextmanager
-from typing import Iterator
 
-DB_PATH = os.getenv("DATABASE_PATH", "figurinhas.db")
-
-_SCHEMA = """
+SCHEMA = """
 CREATE TABLE IF NOT EXISTS figurinha (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     numero     TEXT NOT NULL,
@@ -18,8 +14,8 @@ CREATE TABLE IF NOT EXISTS figurinha (
 
 
 @contextmanager
-def connection() -> Iterator[sqlite3.Connection]:
-    conn = sqlite3.connect(DB_PATH)
+def connection():
+    conn = sqlite3.connect("figurinhas.db")
     conn.row_factory = sqlite3.Row
     try:
         yield conn
@@ -31,6 +27,6 @@ def connection() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
-def init_db() -> None:
+def init_db():
     with connection() as conn:
-        conn.executescript(_SCHEMA)
+        conn.executescript(SCHEMA)
