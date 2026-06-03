@@ -1,3 +1,5 @@
+import Enum as Enum
+import Optional as Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -6,7 +8,7 @@ router = APIRouter(prefix="/figurinha")
 
 class FigurinhaCreateRequest(BaseModel):
     numero: str
-    tipo: str
+    tipo: Enum
     posicao: str
 
 
@@ -17,7 +19,7 @@ async def create_figurinha(request: FigurinhaCreateRequest):
 
 
 @router.get("/")
-async def get_figurinha(posicao: Optional[str] = None, tipo: Optional[str] = None):
+async def get_figurinha(posicao: Optional[str] = None, tipo: Optional[Enum] = None):
     # mais coisa
     if posicao and tipo:
         return {"message": f"Figurinhas do tipo {tipo} e posição {posicao} retornadas!"}

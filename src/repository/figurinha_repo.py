@@ -1,25 +1,25 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from domain.entities import Figurinha 
+
+from domain.entities import Figurinha
+
 
 class FigurinhaRepository(ABC):
-    
     @abstractmethod
-    def create(self, figurinha: Figurinha) -> Figurinha:
-        return
+    def create(self, figurinha: Figurinha) -> Figurinha: ...
 
     @abstractmethod
-    def find_by_id(self, id: int) -> Optional[Figurinha]:
-        return
+    def find_all(
+        self,
+        posicao: Optional[str] = None,
+        tipo: Optional[str] = None,
+    ) -> List[Figurinha]: ...
 
     @abstractmethod
-    def find_all(self) -> List[Figurinha]:
-        return
+    def find_by_id(self, id: int) -> Optional[Figurinha]: ...
 
     @abstractmethod
-    def update_by_id(self) -> Figurinha:
-        return
-    
+    def update_by_id(self, id: int, figurinha: Figurinha) -> Optional[Figurinha]: ...
+
     @abstractmethod
-    def delete(self, id: int) -> None:
-        return
+    def delete(self, id: int) -> bool: ...
